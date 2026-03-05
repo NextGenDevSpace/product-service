@@ -6,7 +6,11 @@ import com.lead.productservice.product.application.mapper.ProductMapper;
 import com.lead.productservice.product.domain.entity.ProductEntity;
 import com.lead.productservice.product.domain.exception.ProductNotFoundException;
 import com.lead.productservice.product.domain.repository.ProductRepository;
+import com.lead.productservice.shared.api.PageResponse;
+import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,4 +54,38 @@ public class ProductService {
                 .map(productMapper::toResponse)
                 .toList();
     }
+
+        @Transactional(readOnly = true)
+        public PageResponse<ProductResponse> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<ProductResponse> result = productRepository
+            .findByPriceBetweenOrderByPriceAsc(minPrice, maxPrice, pageable)
+            .map(productMapper::toResponse);
+
+        return new PageResponse<>(
+            result.getContent(),
+            result.getNumber(),
+            result.getSize(),
+            result.getTotalElements(),
+            result.getTotalPages(),
+            result.isLast()
+        );
+        }
+
+        @Transactional(readOnly = true)
+        public PageResponse<ProductResponse> searchByNameAndMinPrice(String name, BigDecimal minPrice, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<ProductResponse> result = productRepository
+            .searchByNameAndMinPrice(name, minPrice, pageable)
+            .map(productMapper::toResponse);
+
+        return new PageResponse<>(
+            result.getContent(),
+            result.getNumber(),
+            result.getSize(),
+            result.getTotalElements(),
+            result.getTotalPages(),
+            result.isLast()
+        );
+        }
 }

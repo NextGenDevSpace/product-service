@@ -3,7 +3,11 @@ package com.lead.productservice.product.api;
 import com.lead.productservice.product.application.dto.CreateProductRequest;
 import com.lead.productservice.product.application.dto.ProductResponse;
 import com.lead.productservice.product.application.service.ProductService;
+import com.lead.productservice.shared.api.PageResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -46,5 +50,25 @@ public class ProductController {
     @GetMapping("/search")
     public List<ProductResponse> searchByName(@RequestParam String name) {
         return productService.searchByName(name);
+    }
+
+    @GetMapping("/price-range")
+    public PageResponse<ProductResponse> findByPriceRange(
+            @RequestParam @DecimalMin(value = "0.00") BigDecimal minPrice,
+            @RequestParam @DecimalMin(value = "0.01") BigDecimal maxPrice,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) int size
+    ) {
+        return productService.findByPriceRange(minPrice, maxPrice, page, size);
+    }
+
+    @GetMapping("/search/advanced")
+    public PageResponse<ProductResponse> searchAdvanced(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0.00") @DecimalMin(value = "0.00") BigDecimal minPrice,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) int size
+    ) {
+        return productService.searchByNameAndMinPrice(name, minPrice, page, size);
     }
 }
