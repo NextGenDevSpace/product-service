@@ -1,6 +1,8 @@
 package com.lead.productservice.product.api;
 
 import com.lead.productservice.product.application.dto.CreateProductRequest;
+import com.lead.productservice.product.application.dto.CreateComplexProductRequest;
+import com.lead.productservice.product.application.dto.ProductDetailedResponse;
 import com.lead.productservice.product.application.dto.ProductResponse;
 import com.lead.productservice.product.application.service.ProductService;
 import com.lead.productservice.shared.api.PageResponse;
@@ -37,9 +39,24 @@ public class ProductController {
         return productService.create(request);
     }
 
+    @PostMapping("/complex")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductResponse createComplex(@Valid @RequestBody CreateComplexProductRequest request) {
+        return productService.createComplex(request);
+    }
+
     @GetMapping("/{id}")
     public ProductResponse findById(@PathVariable Long id) {
         return productService.findById(id);
+    }
+
+    @GetMapping("/{id}/detailed")
+    public ProductDetailedResponse findDetailedById(
+            @PathVariable Long id,
+            @RequestParam(required = false) String source,
+            @RequestParam(required = false) String currency
+    ) {
+        return productService.findDetailedById(id, source, currency);
     }
 
     @GetMapping

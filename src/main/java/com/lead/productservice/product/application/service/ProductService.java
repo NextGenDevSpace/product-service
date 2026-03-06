@@ -1,6 +1,8 @@
 package com.lead.productservice.product.application.service;
 
 import com.lead.productservice.product.application.dto.CreateProductRequest;
+import com.lead.productservice.product.application.dto.CreateComplexProductRequest;
+import com.lead.productservice.product.application.dto.ProductDetailedResponse;
 import com.lead.productservice.product.application.dto.ProductResponse;
 import com.lead.productservice.product.application.mapper.ProductMapper;
 import com.lead.productservice.product.domain.entity.ProductEntity;
@@ -32,11 +34,25 @@ public class ProductService {
         return productMapper.toResponse(saved);
     }
 
+    @Transactional
+    public ProductResponse createComplex(CreateComplexProductRequest request) {
+        ProductEntity entity = productMapper.toEntity(request);
+        ProductEntity saved = productRepository.save(entity);
+        return productMapper.toResponse(saved);
+    }
+
     @Transactional(readOnly = true)
     public ProductResponse findById(Long id) {
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
         return productMapper.toResponse(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductDetailedResponse findDetailedById(Long id, String source, String currency) {
+        ProductEntity entity = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        return productMapper.toDetailedResponse(entity, source, currency);
     }
 
     @Transactional(readOnly = true)
